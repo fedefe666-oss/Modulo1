@@ -1,0 +1,234 @@
+{
+  "name": "My workflow 28",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -448,
+        -16
+      ],
+      "id": "7ede2868-1acb-4a35-90cd-916e87868819",
+      "name": "When chat message received",
+      "webhookId": "6241ce53-5e83-4f60-b02c-880db7d4ae1c"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Tu rol es ser un agente de soporte tecnico en una oficina administrativa de 20 empleados cuyo objetivo es brindar una solucion al problema que te informen en el campo  {{ $json.chatInput }} . Primero ordenas por un orden de prioridad de nivel 1 a 3 donde 1 es urgente o de suma importancia, 2 que se puede resolver en el dia y 3 que no es de mucha necesidad. Algunos problemas tecnicos son problemas en la pc, problemas electricos, instalacion de programas, configuracion de accesorios, cambios de puestos y demás similares\n\nReglas: limitate a respuestas de 140 caracteres donde indicas la prioridad y que estaras verificando el inconveniente"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "291025af-3991-4cd1-bd8e-d4fcc3d14866",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3.6-27b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        192
+      ],
+      "id": "32dc3097-8b7b-4611-a972-51fe14224326",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "OTVtKkFK4G0yXF9n",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#Soporte",
+          "mode": "name"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        128,
+        -16
+      ],
+      "id": "2de27ecf-e164-46d8-931d-3ffd7990ba7b",
+      "name": "Send a message",
+      "webhookId": "d3861d5d-1b7c-486e-abde-90e070afa253",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "slackApi": {
+          "id": "E3C0K9Gs5IQ4mvMu",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1P-67KGjkKK3y8ue3R3KTwEMyJwiz3vU3nvQA8tYbL34",
+          "mode": "list",
+          "cachedResultName": "Modulo 1 Avanzado",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1P-67KGjkKK3y8ue3R3KTwEMyJwiz3vU3nvQA8tYbL34/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1P-67KGjkKK3y8ue3R3KTwEMyJwiz3vU3nvQA8tYbL34/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "FECHA": "={{ $now }}",
+            "MOTIVO": "={{ $('When chat message received').item.json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MOTIVO",
+              "displayName": "MOTIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NIVEL DE PRIORIDAD",
+              "displayName": "NIVEL DE PRIORIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "RESPUESTA",
+              "displayName": "RESPUESTA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "c4539ace-f00f-4390-add3-32345a437e1a",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ccxvBeBoQKwQzzn4",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "cd188464-940d-43ed-8862-53a3643bba44",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1189aede8b73f549c7cfd11c17397d926761715256497ab65dc93609c09c954"
+  },
+  "nodeGroups": [],
+  "id": "iILURB1jYRbhxrMy",
+  "tags": []
+}
